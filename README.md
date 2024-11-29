@@ -1,153 +1,110 @@
 # motd-on-acid
 
-[![Actions](https://github.com/x70b1/motd-on-acid/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/x70b1/motd-on-acid/actions)
-[![Contributors](https://img.shields.io/github/contributors/x70b1/motd-on-acid.svg)](https://github.com/x70b1/motd-on-acid/graphs/contributors)
-[![License](https://img.shields.io/github/license/x70b1/motd-on-acid.svg)](https://github.com/x70b1/motd-on-acid/blob/master/LICENSE)
+[![Actions](https://github.com/rvalitov/motd-on-acid/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/x70b1/motd-on-acid/actions)
+[![Contributors](https://img.shields.io/github/contributors/rvalitov/motd-on-acid.svg)](https://github.com/x70b1/motd-on-acid/graphs/contributors)
+[![License](https://img.shields.io/github/license/x70b1/motd-on-acid.svg)](https://github.com/rvalitov/motd-on-acid/blob/master/LICENSE)
 
-This MOTD has so many colors! This thing is from hell.
-
-It's colourful. It shows a lot. It's fun.
-But I guess we have reached the limit.
-The execution is sometimes too slow.
-It makes it annoying when you log in.
-So be careful.
-I warned you.
-
-
-## Preview
+A nice dynamic MOTD for your server.
 
 ![motd-on-acid](preview.png)
 
-The most of the icons in this preview are from Font Awesome 5 Pro.
-I also used [fontello](http://fontello.com/) to create some own icons.
-
+Modifications from the original repository:
+- most icons are preconfigured and use standard emojis, as a result, no need to patch your default font with icons
+- new default configuration that is fast to execute and does not slow down the SSH login process 
+- easier setup and documentation improvements
 
 ## Setup
+Below are the steps to install and configure the script on your system. Tested with Debian 12 Bookworm.
 
-1. Check the dependencies.
-   Some modules require `jq`, the banner needs `figlet`.
-   Install them.
+1. Install dependencies.
+   ```console
+   apt-get update
+   apt-get install jq figlet toilet-fonts -y
+   ```
 
-2. Copy `motd-on-acid.sh` to `~/.bashrc_motd` on your system.
+2. Download `motd-on-acid.sh` and save it as `~/.bashrc_motd` on your server.
 
-3. Run `motd-on-acid` at the end of your `.bashrc`.
-  Add the modules as arguments.
-  The output is ordered in the same way.
-
-4. Replace the predefined values with your own.
-   The complete list of vars is [at the top](motd-on-acid.sh#L4) of the script.
-
-```sh
-# example snippet for your .bashrc:
-
-source ~/.bashrc_motd
-
-BANNER_KERNEL_ICON="X"
-BANNER_UPTIME_ICON="Y"
-BANNER_DEBIAN_ICON="Z"
-
-bash_motd --banner --processor --memory
-```
-
-
-### Make it better
-
-If you use the example above you will get some problems.
-
-1. You only want to see `motd-on-acid` if you login with `ssh` on an interactive shell.
-
-2. You need a way to disable it sometimes.
-
-The result would look like this:
-
-```sh
-# example snippet for your .bashrc:
-
-if [ -n "$SSH_CONNECTION" ] && [ $SHLVL -eq 1 ] && [[ $- == *i* ]]; then
-    if [ -z "$MOTD" ] || [ "$MOTD" -ne 0 ]; then
-        source ~/.bashrc_motd
-
-        BANNER_KERNEL_ICON="X"
-        BANNER_UPTIME_ICON="Y"
-        BANNER_DEBIAN_ICON="Z"
-
-        bash_motd --banner --processor --memory
+3. Edit `.bashrc` file and add the following lines to the end:
+    ```sh
+    # example snippet for your .bashrc:
+    
+    if [ -n "$SSH_CONNECTION" ] && [ $SHLVL -eq 1 ] && [[ $- == *i* ]]; then
+        if [ -z "$MOTD" ] || [ "$MOTD" -ne 0 ]; then
+            source ~/.bashrc_motd
+    
+            BANNER_FONTPATH="pagga"
+    
+            bash_motd --banner --cpu --memory --swap --diskspace --services --login
+        fi
     fi
-fi
+    ```
+4. Update ssh server configuration. If you use latest OpenSSH, create a new file `motd.conf` in `/etc/ssh/sshd_config.d/` with the  content below, otherwise add the content to `/etc/ssh/sshd_config`:
 ```
-
-Also add `AcceptEnv MOTD` to your `/etc/ssh/sshd_config`.
-
-Now you can run `export MOTD=0; ssh -o SendEnv=MOTD -t host.name.net` to disable MOTD.
-That is useful if you run `ssh` commands in scripts.
-
-
-### Remove other output
-
-You still have disturbing output which is not required.
-
-Change some values in your `/etc/ssh/sshd_config`:
-
-```
+AcceptEnv MOTD
 PrintMotd no
-PrintLastLog no
 Banner none
+PrintLastLog no
 ```
 
-Disable or remove all `pam_motd.so` PAM includes in `/etc/pam.d/sshd`
-
+5. Update PAM settings. Disable or remove all `pam_motd.so` PAM includes in `/etc/pam.d/sshd`:
 ```
-# session    optional     pam_motd.so
+# session    optional     pam_motd.so  motd=/run/motd.dynamic
+# session    optional     pam_motd.so noupdate
 ```
+6. Download file `.bashrc_motd_services.txt` and save it in your home directory. 
+   Edit it to include the services you want to monitor. More details [here](#modifying-front-matter) 
+ 
+## Notes:
+- You can run `export MOTD=0; ssh -o SendEnv=MOTD -t host.name.net` to disable MOTD. That is useful if you run `ssh` commands in scripts.
 
 
-## Modules
+## Customizations
+- You can change the icons and colors in the script. The default configuration is optimized for the most common use cases.
+- You can check fonts for banners at https://devhints.io/figlet. The default font is `pagga`. The list of fonts installed by default is [here](https://packages.debian.org/bookworm/all/toilet-fonts/filelist). You can install extra fonts if needed.
 
-### --banner
+### Modules
+| Name   | Argument | Description                                                    | Enabled By Default | Default Icons Configured |
+|--------|----------|----------------------------------------------------------------|--------------------|--------------------------|
+| Banner | `--banner`  | Prints a banner, linux distribution, kernel version and uptime | [x]                | [x]                      |
+| CPU    |     `--cpu`     | Prints the `loadavg` threshold and hardware info               | [x]                | [x]                      |
+| RAM    |      `--memory`    | Prints a usage bar for your memory                             | [x]                | [x]                      |
+| Swap   |     `--swap`     | Prints a usage bar as summary for your swap space              | [x]                | [x]                      |
+| Disk   |     `--diskspace`     | Prints a usage bar for all mounted filesystems                | [x]                | [x]                      |
+| Services | `--services` | Prints the status of a defined list of `systemd` services       | [x]                | [x]                      |
+| Login | `--login` | Prints the previous login time, logout time and IP of your current user | [x]                | [x]                      |
+| Podman | `--podman` | Prints the status of your local `podman` containers | [ ]                | [ ]                      |
+| Docker | `--docker` | Prints the status of your local `docker` containers | [ ]                | [ ]                      |
+| Updates | `--updates` | Prints your available linux distribution updates | [ ]                | [ ]                      |
+| Letsencrypt | `--letsencrypt` | Prints the expiration status of all your certs | [ ]                | [ ]                      |
+| Include | `--include` | Create your own script and print it on your MOTD | [ ]                | [ ]                      |
 
-Prints a `figlet` banner, linux distribution, kernel version and uptime.
-
-
-### --cpu
-
-Prints the loadavg threshold and hardware info.
-
-
-### --memory
-
-Prints a usage bar for your memory.
-
-
-### --swap
-
-Prints a usage bar as summary for your swap space.
-
-
-### --diskspace
-
-Prints a usage bar for all mounted filesystems.
-
-
-### --services
-
-Prints the status of a defined list of systemd services.
-
-The default file is `.bashrc_motd_services.txt`.
-It should look like the example. The separator is`;`.
+### Additional configuration for some modules:
+#### Services
+Create a file `.bashrc_motd_services.txt` with the contents of the services you want to monitor.
+File structure:
 
 1. The printed name [required]
 2. `systemd` service name [required]
 3. `dpkg` or `rpm` package name for version info [not required, will print `--` if empty]
 
+The separator is`;`. Example:
+
 ```
 OpenSSH;ssh;openssh-server
-Webserver;nginx
+Fail2ban;fail2ban;fail2ban
+ClamAV;clamav-daemon;clamav
+UFW;ufw;ufw
+MariaDB;mysql;mariadb-server
+Apache;apache2;apache2
+FTP;pure-ftpd-mysql;pure-ftpd-mysql
+PHP 7.4;php7.4-fpm;php7.4-fpm
+PHP 8.0;php8.0-fpm;php8.0-fpm
+PHP 8.1;php8.1-fpm;php8.1-fpm
+PHP 8.2;php8.2-fpm;php8.2-fpm
+PHP 8.3;php8.3-fpm;php8.3-fpm
 ```
 
-
-### --podman
-
-Prints the status of your local `podman` containers.
+#### Podman
 
 You have to add `podman` to the `/etc/sudoers` for your user:
 
@@ -157,10 +114,7 @@ username ALL=(ALL) NOPASSWD: /usr/bin/podman images --format json
 username ALL=(ALL) NOPASSWD: /usr/bin/podman pod ls --sort name --format json
 ```
 
-
-### --docker
-
-Prints the status of your local `docker` containers.
+#### Docker
 
 You have to add `curl` to the `/etc/sudoers` for your user:
 
@@ -169,31 +123,11 @@ username ALL=(ALL) NOPASSWD: /usr/bin/curl -sf --unix-socket /var/run/docker.soc
 username ALL=(ALL) NOPASSWD: /usr/bin/curl -sf --unix-socket /var/run/docker.sock http\:/v1.40/containers/json?all=true
 ```
 
+#### LetsEncrypt
 
-### --updates
-
-Prints your available linux distribution updates.
-`apt` and `dnf` is supported at the moment.
-
-
-### --letsencrypt
-
-Prints the expiration status of all your certs.
-Don't forget to set the path to your cert.
-
-You have to add `find` and `openssl` to the `/etc/sudoers` for your user:
+You have to add `find` and `openssl` to the `/etc/sudoers` for your user and add path to your certs:
 
 ```
 username ALL=(ALL) NOPASSWD: /usr/bin/find </your/path/to/ssl> -name cert.pem
 username ALL=(ALL) NOPASSWD: /usr/bin/openssl
 ```
-
-
-### --login
-
-Prints the previous login time, logout time and IP of your current user.
-
-
-### --include
-
-Create your own script and print it on your MOTD!

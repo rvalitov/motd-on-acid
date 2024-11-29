@@ -1,0 +1,12 @@
+OpenSSH;ssh;openssh-server
+Fail2ban;fail2ban;fail2ban
+ClamAV;clamav-daemon;clamav
+UFW;ufw;ufw
+MariaDB;mysql;mariadb-server
+Apache;apache2;apache2
+FTP;pure-ftpd-mysql;pure-ftpd-mysql
+PHP 7.4;php7.4-fpm;php7.4-fpm
+PHP 8.0;php8.0-fpm;php8.0-fpm
+PHP 8.1;php8.1-fpm;php8.1-fpm
+PHP 8.2;php8.2-fpm;php8.2-fpm
+PHP 8.3;php8.3-fpm;php8.3-fpm

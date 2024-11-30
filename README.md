@@ -1,7 +1,7 @@
 # MOTD-ON-ACID
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/104ac2a47a36438c9492dac2cf37c851)](https://app.codacy.com/gh/rvalitov/motd-on-acid/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-[![ShellChecker](https://github.com/rvalitov/motd-on-acid/actions/workflows/sh-checker.yml/badge.svg)](https://github.com/rvalitov/motd-on-acid/actions/workflows/sh-checker.yml)
+[![Codacy](https://github.com/rvalitov/motd-on-acid/actions/workflows/codacy.yml/badge.svg)](https://github.com/rvalitov/motd-on-acid/actions/workflows/codacy.yml)
 [![Tests](https://github.com/rvalitov/motd-on-acid/actions/workflows/node.js.yml/badge.svg)](https://github.com/rvalitov/motd-on-acid/actions/workflows/node.js.yml)
 [![License](https://img.shields.io/github/license/rvalitov/motd-on-acid.svg)](https://github.com/rvalitov/motd-on-acid/blob/master/LICENSE)
 

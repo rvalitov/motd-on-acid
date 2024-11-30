@@ -6,13 +6,13 @@
   "type": "module",
   "scripts": {
     "shellcheck": "shellcheck ./motd-on-acid.sh",
-    "spectral": "spectral lint ./.github/*.yml",
+    "yaml": "eslint .",
     "json": "jsonlint -q ./*.json",
     "package": "npx npm-package-json-lint .",
     "markdown": "remark . --frail",
     "markdownlint": "markdownlint --config .markdownlint.json \"*.md\"",
     "markdown:fix": "remark . --frail --output",
-    "test": "npm run markdown && npm run markdownlint && npm run shellcheck && npm run spectral && npm run package && npm run json"
+    "test": "npm run markdown && npm run markdownlint && npm run shellcheck && npm run yaml && npm run package && npm run json"
   },
   "remarkConfig": {
     "plugins": [
@@ -35,7 +35,8 @@
   },
   "devDependencies": {
     "@prantlf/jsonlint": "^16.0.0",
-    "@stoplight/spectral-cli": "^6.14.2",
+    "eslint": "^9.16.0",
+    "eslint-plugin-yml": "^1.16.0",
     "markdownlint-cli": "^0.43.0",
     "npm-package-json-lint": "^8.0.0",
     "npm-package-json-lint-config-default": "^7.0.1",

@@ -1,0 +1,49 @@
+{
+  "name": "motd-on-acid",
+  "title": "The nice MOTD for your server",
+  "version": "1.0.0",
+  "description": "A shell script for dynamic MOTD that shows a quick server status when you login via SSH: hardware info, CPU and memory usage, disk and swap usage, active and inactive services, etc.",
+  "type": "module",
+  "scripts": {
+    "shellcheck": "shellcheck ./motd-on-acid.sh",
+    "spectral": "spectral lint ./.github/*.yml",
+    "json": "jsonlint -q ./*.json",
+    "package": "npx npm-package-json-lint .",
+    "markdown": "remark . --frail",
+    "markdownlint": "markdownlint --config .markdownlint.json \"*.md\"",
+    "markdown:fix": "remark . --frail --output",
+    "test": "npm run markdown && npm run markdownlint && npm run shellcheck && npm run spectral && npm run package && npm run json"
+  },
+  "remarkConfig": {
+    "plugins": [
+      "remark-preset-lint-consistent",
+      "remark-preset-lint-recommended"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rvalitov/motd-on-acid.git"
+  },
+  "author": "Ramil Valitov (https://github.com/rvalitov)",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/rvalitov/motd-on-acid/issues"
+  },
+  "homepage": "https://github.com/rvalitov/motd-on-acid",
+  "engines": {
+    "node": "^18.18.0 || ^20.9.0 || >=21.1.0"
+  },
+  "devDependencies": {
+    "@prantlf/jsonlint": "^16.0.0",
+    "@stoplight/spectral-cli": "^6.14.2",
+    "markdownlint-cli": "^0.43.0",
+    "npm-package-json-lint": "^8.0.0",
+    "npm-package-json-lint-config-default": "^7.0.1",
+    "remark": "^15.0.1",
+    "remark-cli": "^12.0.1",
+    "remark-lint-list-item-indent": "^4.0.0",
+    "remark-preset-lint-consistent": "^6.0.0",
+    "remark-preset-lint-recommended": "^7.0.0",
+    "shellcheck": "^3.0.0"
+  }
+}
